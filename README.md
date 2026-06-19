@@ -12,7 +12,7 @@ Designed for CTF competitions, home labs, and security research. **Only use agai
 
 ![Dashboard Screenshot](https://photo.tyfsadik.org/share/Oq45sk6htnBBym1iqIAClzJSqCmDsfWZIwxqHQkIrYCN6VpCNiqcVJUU2gW1RAA5tnk)
 
-> _Replace the screenshot above with your own after first run._
+> https://photo.tyfsadik.org/share/Oq45sk6htnBBym1iqIAClzJSqCmDsfWZIwxqHQkIrYCN6VpCNiqcVJUU2gW1RAA5tnk
 
 ---
 
