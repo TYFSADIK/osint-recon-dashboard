@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recon Dashboard</title>
+    <style>
+        * { box-sizing: border-box; }
+        body { font-family: 'Courier New', monospace; max-width: 1400px; margin: 0 auto; padding: 20px; background: #0d0d0d; color: #ccc; }
+        h1 { color: #00ff88; margin-bottom: 4px; font-size: 2em; }
+        .subtitle { color: #555; margin-bottom: 30px; font-size: 0.85em; }
+
+        .section { margin-bottom: 35px; }
+        .section-title { color: #00d4ff; font-size: 1em; text-transform: uppercase; letter-spacing: 3px; border-bottom: 1px solid #1a1a1a; padding-bottom: 8px; margin-bottom: 15px; }
+
+        .tool-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; }
+        .tool-card { background: #111; padding: 15px; border-radius: 6px; border: 1px solid #1e1e1e; transition: border-color 0.2s; }
+        .tool-card:hover { border-color: #00ff88; }
+        .tool-card h3 { color: #e94560; margin: 0 0 4px 0; font-size: 0.95em; }
+        .tool-card p { color: #555; font-size: 0.75em; margin: 0 0 10px 0; }
+        .tool-card input[type="text"] { width: 100%; padding: 8px; border: 1px solid #222; border-radius: 4px; background: #0d0d0d; color: #ccc; font-family: monospace; font-size: 0.85em; }
+        .tool-card input[type="text"]:focus { outline: none; border-color: #00ff88; }
+        .run-btn { background: #00ff88; color: #000; border: none; padding: 7px 14px; border-radius: 4px; cursor: pointer; font-family: monospace; font-weight: bold; font-size: 0.8em; margin-top: 8px; width: 100%; }
+        .run-btn:hover { background: #00cc66; }
+        .run-btn:disabled { background: #333; color: #555; cursor: not-allowed; }
+
+        #results-panel { margin-top: 30px; background: #080808; border: 1px solid #1e1e1e; border-radius: 6px; overflow: hidden; }
+        #results-header { background: #111; padding: 10px 16px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #1e1e1e; }
+        #results-label { color: #00d4ff; font-size: 0.85em; }
+        #results-status { font-size: 0.75em; padding: 3px 8px; border-radius: 3px; }
+        .status-running { background: #f39c12; color: #000; }
+        .status-done    { background: #00ff88; color: #000; }
+        .status-error   { background: #e94560; color: #fff; }
+        #results-body { padding: 16px; white-space: pre-wrap; font-family: monospace; font-size: 0.8em; max-height: 500px; overflow-y: auto; color: #aaa; line-height: 1.5; }
+
+        .history-section { margin-top: 30px; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.8em; }
+        th { color: #00d4ff; padding: 8px 10px; text-align: left; border-bottom: 1px solid #1e1e1e; }
+        td { padding: 7px 10px; border-bottom: 1px solid #111; color: #777; }
+        td.tool-name { color: #e94560; }
+        td.target-name { color: #ccc; }
+        tr:hover td { background: #0f0f0f; }
+        .view-btn { background: none; border: 1px solid #333; color: #00d4ff; padding: 2px 8px; border-radius: 3px; cursor: pointer; font-family: monospace; font-size: 0.8em; }
+        .view-btn:hover { border-color: #00d4ff; }
+
+        .badge { display: inline-block; font-size: 0.65em; padding: 2px 6px; border-radius: 3px; margin-left: 6px; vertical-align: middle; }
+        .badge-osint  { background: #1a2a1a; color: #00ff88; border: 1px solid #00ff8844; }
+        .badge-active { background: #1a1a2a; color: #00d4ff; border: 1px solid #00d4ff44; }
+        .badge-web    { background: #2a1a1a; color: #e94560; border: 1px solid #e9456044; }
+        .badge-net    { background: #2a2a1a; color: #f39c12; border: 1px solid #f39c1244; }
+        .badge-crack  { background: #2a1a2a; color: #ff00ff; border: 1px solid #ff00ff44; }
+    </style>
+</head>
+<body>
+    <h1>Recon Dashboard</h1>
+    <p class="subtitle">Competition toolkit &middot; OSINT &middot; Active Recon &middot; Web &middot; Network &middot; Password Cracking</p>
+
+    <!-- OSINT / Passive Recon -->
+    <div class="section">
+        <div class="section-title">OSINT / Passive Recon <span class="badge badge-osint">passive</span></div>
+        <div class="tool-grid">
+            <div class="tool-card">
+                <h3>Subfinder</h3>
+                <p>Fast passive subdomain discovery</p>
+                <input type="text" id="t-subfinder" placeholder="example.com">
+                <button class="run-btn" onclick="runTool('subfinder','t-subfinder')">Run</button>
+            </div>
+            <div class="tool-card">
+                <h3>Amass</h3>
+                <p>Deep DNS enumeration (50+ sources)</p>
+                <input type="text" id="t-amass" placeholder="example.com">
+                <button class="run-btn" onclick="runTool('amass','t-amass')">Run</button>
+            </div>
+            <div class="tool-card">
+                <h3>theHarvester</h3>
+                <p>Email, employee, and subdomain harvesting</p>
+                <input type="text" id="t-theharvester" placeholder="example.com">
+                <button class="run-btn" onclick="runTool('theharvester','t-theharvester')">Run</button>
+            </div>
+            <div class="tool-card">
+                <h3>Sherlock</h3>
+                <p>Username enumeration across 400+ sites</p>
+                <input type="text" id="t-sherlock" placeholder="username">
+                <button class="run-btn" onclick="runTool('sherlock','t-sherlock')">Run</button>
+            </div>
+            <div class="tool-card">
+                <h3>GAU</h3>
+                <p>URL enumeration from archives and crawlers</p>
+                <input type="text" id="t-gau" placeholder="example.com">
+                <button class="run-btn" onclick="runTool('gau','t-gau')">Run</button>
+            </div>
+            <div class="tool-card">
+                <h3>h8mail</h3>
+                <p>Email breach and credential check</p>
+                <input type="text" id="t-h8mail" placeholder="target@email.com">
+                <button class="run-btn" onclick="runTool('h8mail','t-h8mail')">Run</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Active Recon -->
+    <div class="section">
+        <div class="section-title">Active Recon <span class="badge badge-active">active</span></div>
+        <div class="tool-grid">
+            <div class="tool-card">
+                <h3>Nmap (Top 1000)</h3>
+                <p>Service/version scan, top 1000 ports</p>
+                <input type="text" id="t-nmap" placeholder="192.168.1.1 or example.com">
+                <button class="run-btn" onclick="runTool('nmap','t-nmap')">Run</button>
+            </div>
+            <div class="tool-card">
+                <h3>Nmap (Full)</h3>
+                <p>All 65535 ports &mdash; slower but complete</p>
+                <input type="text" id="t-nmap-full" placeholder="192.168.1.1">
+                <button class="run-btn" onclick="runTool('nmap-full','t-nmap-full')">Run</button>
+            </div>
+            <div class="tool-card">
+                <h3>Masscan</h3>
+                <p>Ultra-fast full port scan</p>
+                <input type="text" id="t-masscan" placeholder="192.168.1.1">
+                <button class="run-btn" onclick="runTool('masscan','t-masscan')">Run</button>
+            </div>
+            <div class="tool-card">
+                <h3>httpx</h3>
+                <p>Probe live hosts and grab HTTP banners</p>
+                <input type="text" id="t-httpx" placeholder="example.com">
+                <button class="run-btn" onclick="runTool('httpx','t-httpx')">Run</button>
+            </div>
+            <div class="tool-card">
+                <h3>WhatWeb</h3>
+                <p>Web technology fingerprinting</p>
+                <input type="text" id="t-whatweb" placeholder="example.com">
+                <button class="run-btn" onclick="runTool('whatweb','t-whatweb')">Run</button>
+            </div>
+            <div class="tool-card">
+                <h3>Gobuster DNS</h3>
+                <p>Subdomain brute force</p>
+                <input type="text" id="t-gobuster-dns" placeholder="example.com">
+                <button class="run-btn" onclick="runTool('gobuster-dns','t-gobuster-dns')">Run</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Web Exploitation -->
+    <div class="section">
+        <div class="section-title">Web Exploitation <span class="badge badge-web">exploit</span></div>
+        <div class="tool-grid">
+            <div class="tool-card">
+                <h3>Gobuster Dir</h3>
+                <p>Directory brute force</p>
+                <input type="text" id="t-gobuster-dir" placeholder="example.com">
+                <button class="run-btn" onclick="runTool('gobuster-dir','t-gobuster-dir')">Run</button>
+            </div>
+            <div class="tool-card">
+                <h3>Gobuster Dir (Deep)</h3>
+                <p>Deep directory brute force &mdash; medium wordlist</p>
+                <input type="text" id="t-gobuster-dir-big" placeholder="example.com">
+                <button class="run-btn" onclick="runTool('gobuster-dir-big','t-gobuster-dir-big')">Run</button>
+            </div>
+            <div class="tool-card">
+                <h3>ffuf Dir</h3>
+                <p>Fast directory fuzzer</p>
+                <input type="text" id="t-ffuf-dir" placeholder="example.com">
+                <button class="run-btn" onclick="runTool('ffuf-dir','t-ffuf-dir')">Run</button>
+            </div>
+            <div class="tool-card">
+                <h3>ffuf Params</h3>
+                <p>Parameter name discovery</p>
+                <input type="text" id="t-ffuf-param" placeholder="example.com/page.php">
+                <button class="run-btn" onclick="runTool('ffuf-param','t-ffuf-param')">Run</button>
+            </div>
+            <div class="tool-card">
+                <h3>Nikto</h3>
+                <p>Web server vulnerability scan</p>
+                <input type="text" id="t-nikto" placeholder="example.com">
+                <button class="run-btn" onclick="runTool('nikto','t-nikto')">Run</button>
+            </div>
+            <div class="tool-card">
+                <h3>Nuclei</h3>
+                <p>Template-based vulnerability scanner</p>
+                <input type="text" id="t-nuclei" placeholder="example.com">
+                <button class="run-btn" onclick="runTool('nuclei','t-nuclei')">Run</button>
+            </div>
+            <div class="tool-card">
+                <h3>SQLMap</h3>
+                <p>Automated SQL injection detection</p>
+                <input type="text" id="t-sqlmap" placeholder="example.com/page.php?id=1">
+                <button class="run-btn" onclick="runTool('sqlmap','t-sqlmap')">Run</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Network / Windows -->
+    <div class="section">
+        <div class="section-title">Network / Windows <span class="badge badge-net">network</span></div>
+        <div class="tool-grid">
+            <div class="tool-card">
+                <h3>Enum4linux</h3>
+                <p>SMB/Windows enumeration &mdash; users, shares, policies</p>
+                <input type="text" id="t-enum4linux" placeholder="192.168.1.10">
+                <button class="run-btn" onclick="runTool('enum4linux','t-enum4linux')">Run</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Password Cracking -->
+    <div class="section">
+        <div class="section-title">Password Cracking <span class="badge badge-crack">crack</span></div>
+        <div class="tool-grid">
+            <div class="tool-card">
+                <h3>John (Common)</h3>
+                <p>Crack hash file with rockyou.txt</p>
+                <input type="text" id="t-john-common" placeholder="/path/to/hashes.txt">
+                <button class="run-btn" onclick="runTool('john-common','t-john-common')">Run</button>
+            </div>
+            <div class="tool-card">
+                <h3>Hashcat MD5</h3>
+                <p>GPU-accelerated MD5 crack with rockyou.txt</p>
+                <input type="text" id="t-hashcat-md5" placeholder="/path/to/hashes.txt">
+                <button class="run-btn" onclick="runTool('hashcat-md5','t-hashcat-md5')">Run</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Results Panel -->
+    <div id="results-panel">
+        <div id="results-header">
+            <span id="results-label">Output</span>
+            <span id="results-status"></span>
+        </div>
+        <div id="results-body">Run a tool above to see output here.</div>
+    </div>
+
+    <!-- Scan History -->
+    <div class="history-section">
+        <div class="section-title" style="margin-top:30px">Scan History</div>
+        <div id="history"></div>
+    </div>
+
+    <script>
+        let currentPoll = null;
+
+        function escapeHtml(s) {
+            return String(s)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;');
+        }
+
+        async function runTool(tool, inputId) {
+            const target = document.getElementById(inputId).value.trim();
+            if (!target) { alert('Enter a target first'); return; }
+
+            if (currentPoll) clearTimeout(currentPoll);
+
+            document.getElementById('results-label').textContent = tool + ' -> ' + target;
+            setStatus('running', 'Starting...');
+            document.getElementById('results-body').textContent = '';
+
+            document.querySelectorAll('.run-btn').forEach(b => b.disabled = true);
+
+            try {
+                const res = await fetch('/scan', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: 'tool=' + encodeURIComponent(tool) + '&target=' + encodeURIComponent(target)
+                });
+                const data = await res.json();
+                if (data.detail) {
+                    setStatus('error', 'Error');
+                    document.getElementById('results-body').textContent = 'Error: ' + data.detail;
+                    enableButtons();
+                } else if (data.scan_id) {
+                    pollResults(data.scan_id);
+                }
+            } catch (e) {
+                setStatus('error', 'Error');
+                document.getElementById('results-body').textContent = 'Request failed: ' + e;
+                enableButtons();
+            }
+        }
+
+        function setStatus(type, text) {
+            const el = document.getElementById('results-status');
+            el.textContent = text;
+            el.className = 'status-' + type;
+        }
+
+        function enableButtons() {
+            document.querySelectorAll('.run-btn').forEach(b => b.disabled = false);
+        }
+
+        async function pollResults(scanId) {
+            try {
+                const res = await fetch('/results/' + scanId);
+                const data = await res.json();
+                if (data.status === 'running') {
+                    setStatus('running', 'Running...');
+                    currentPoll = setTimeout(() => pollResults(scanId), 2000);
+                } else {
+                    setStatus('done', 'Done');
+                    document.getElementById('results-body').textContent = data.result || '(no output)';
+                    enableButtons();
+                    loadHistory();
+                }
+            } catch (e) {
+                setStatus('error', 'Poll failed');
+                enableButtons();
+            }
+        }
+
+        async function loadHistory() {
+            try {
+                const res = await fetch('/history');
+                const data = await res.json();
+                let html = '<table><tr><th>Time</th><th>Tool</th><th>Target</th><th>Status</th><th></th></tr>';
+                data.forEach(s => {
+                    const st = s.status === 'done'
+                        ? '<span style="color:#00ff88">done</span>'
+                        : '<span style="color:#f39c12">running</span>';
+                    html += `<tr>
+                        <td>${escapeHtml(s.created_at.replace('T', ' ').slice(0, 19))}</td>
+                        <td class="tool-name">${escapeHtml(s.tool)}</td>
+                        <td class="target-name">${escapeHtml(s.target)}</td>
+                        <td>${st}</td>
+                        <td><button class="view-btn" onclick="viewScan('${escapeHtml(s.id)}','${escapeHtml(s.tool)}','${escapeHtml(s.target)}')">View</button></td>
+                    </tr>`;
+                });
+                html += '</table>';
+                document.getElementById('history').innerHTML = html;
+            } catch (e) {}
+        }
+
+        async function viewScan(id, tool, target) {
+            document.getElementById('results-label').textContent = tool + ' -> ' + target;
+            setStatus('running', 'Loading...');
+            document.getElementById('results-body').textContent = '';
+            const res = await fetch('/results/' + id);
+            const data = await res.json();
+            setStatus('done', 'Done');
+            document.getElementById('results-body').textContent = data.result || '(no output)';
+        }
+
+        loadHistory();
+    </script>
+</body>
+</html>
